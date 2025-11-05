@@ -136,21 +136,75 @@ function showNotification(message, type) {
     }, 5000);
 }
 
-// Blog post "Read More" functionality
-document.querySelectorAll('.read-more').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault();
+// Load blog posts from API
+async function loadBlogPosts() {
+    try {
+        const response = await fetch('/api/blogs?published=true&limit=6');
+        const data = await response.json();
         
-        // Create modal for blog post
-        const blogTitle = this.closest('.blog-card').querySelector('h3').textContent;
-        const blogExcerpt = this.closest('.blog-card').querySelector('p').textContent;
-        
-        createBlogModal(blogTitle, blogExcerpt);
+        if (data.blogs && data.blogs.length > 0) {
+            updateBlogGrid(data.blogs);
+        }
+    } catch (error) {
+        console.error('Error loading blog posts:', error);
+    }
+}
+
+function updateBlogGrid(posts) {
+    const blogGrid = document.querySelector('.blog-grid');
+    
+    blogGrid.innerHTML = posts.map(post => `
+        <article class="blog-card">
+            <div class="blog-image">
+                ${post.image ? `<img src="${post.image}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;">` : '<div class="placeholder-image"></div>'}
+            </div>
+            <div class="blog-content">
+                <div class="blog-meta">
+                    <span class="date">${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                    <span class="category">${post.category}</span>
+                </div>
+                <h3>${post.title}</h3>
+                <p>${post.excerpt}</p>
+                <a href="#" class="read-more" data-post-id="${post._id}">Read More →</a>
+            </div>
+        </article>
+    `).join('');
+    
+    // Re-attach event listeners to new "Read More" links
+    attachReadMoreListeners();
+}
+
+function attachReadMoreListeners() {
+    document.querySelectorAll('.read-more').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const postId = this.getAttribute('data-post-id');
+            loadFullPost(postId);
+        });
     });
+}
+
+async function loadFullPost(postId) {
+    try {
+        const response = await fetch(`/api/blogs/${postId}`);
+        const post = await response.json();
+        
+        if (post) {
+            createBlogModal(post.title, post.content);
+        }
+    } catch (error) {
+        console.error('Error loading full post:', error);
+        showNotification('Error loading blog post', 'error');
+    }
+}
+
+// Load blog posts when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    loadBlogPosts();
 });
 
 // Create blog post modal
-function createBlogModal(title, excerpt) {
+function createBlogModal(title, content) {
     // Remove existing modal
     const existingModal = document.querySelector('.blog-modal');
     if (existingModal) {
@@ -167,10 +221,7 @@ function createBlogModal(title, excerpt) {
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>${excerpt}</p>
-                <p>This is a full blog post content. In a real implementation, this would contain the complete article with proper formatting, images, and more detailed content.</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <div>${content}</div>
             </div>
         </div>
     `;

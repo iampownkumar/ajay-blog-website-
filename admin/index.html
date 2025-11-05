@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Ajay's Blog</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Container -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1><i class="fas fa-blog"></i> Admin Panel</h1>
+                <p>Ajay's Blog Management System</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>Default: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboardContainer" class="dashboard-container" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-blog"></i> Blog Admin</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" data-section="dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#" data-section="posts" class="nav-link"><i class="fas fa-newspaper"></i> Blog Posts</a></li>
+                    <li><a href="#" data-section="new-post" class="nav-link"><i class="fas fa-plus-circle"></i> New Post</a></li>
+                    <li><a href="#" data-section="categories" class="nav-link"><i class="fas fa-tags"></i> Categories</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-title">
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="refreshBtn" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalPosts">0</h3>
+                            <p>Total Posts</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="publishedPosts">0</h3>
+                            <p>Published</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="draftPosts">0</h3>
+                            <p>Drafts</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalCategories">0</h3>
+                            <p>Categories</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-posts">
+                    <h2>Recent Posts</h2>
+                    <div id="recentPostsList" class="posts-list">
+                        <!-- Recent posts will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Posts Section -->
+            <section id="posts" class="content-section">
+                <div class="section-header">
+                    <h2>All Blog Posts</h2>
+                    <div class="section-actions">
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="">All Categories</option>
+                        </select>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="true">Published</option>
+                            <option value="false">Draft</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="posts-table-container">
+                    <table class="posts-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postsTableBody">
+                            <!-- Posts will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button id="prevPage" class="btn btn-secondary">Previous</button>
+                    <span id="pageInfo">Page 1 of 1</span>
+                    <button id="nextPage" class="btn btn-secondary">Next</button>
+                </div>
+            </section>
+
+            <!-- New Post Section -->
+            <section id="new-post" class="content-section">
+                <div class="form-container">
+                    <h2>Create New Blog Post</h2>
+                    <form id="blogForm" enctype="multipart/form-data">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="postTitle">Title *</label>
+                                <input type="text" id="postTitle" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="postCategory">Category *</label>
+                                <input type="text" id="postCategory" name="category" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="postExcerpt">Excerpt *</label>
+                            <textarea id="postExcerpt" name="excerpt" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="postContent">Content *</label>
+                            <textarea id="postContent" name="content" rows="15" required></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="postTags">Tags (comma separated)</label>
+                                <input type="text" id="postTags" name="tags" placeholder="javascript, web development, tutorial">
+                            </div>
+                            <div class="form-group">
+                                <label for="readTime">Read Time (minutes)</label>
+                                <input type="number" id="readTime" name="readTime" min="1" value="5">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="postImage">Featured Image</label>
+                            <input type="file" id="postImage" name="image" accept="image/*">
+                            <div id="imagePreview" class="image-preview"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="postPublished" name="published" checked>
+                                <span>Publish immediately</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Post
+                            </button>
+                            <button type="button" id="cancelBtn" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Categories Section -->
+            <section id="categories" class="content-section">
+                <div class="section-header">
+                    <h2>Categories</h2>
+                </div>
+                <div id="categoriesList" class="categories-grid">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Blog Post</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editBlogForm" enctype="multipart/form-data">
+                    <input type="hidden" id="editPostId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editPostTitle">Title *</label>
+                            <input type="text" id="editPostTitle" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPostCategory">Category *</label>
+                            <input type="text" id="editPostCategory" name="category" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPostExcerpt">Excerpt *</label>
+                        <textarea id="editPostExcerpt" name="excerpt" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPostContent">Content *</label>
+                        <textarea id="editPostContent" name="content" rows="15" required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editPostTags">Tags (comma separated)</label>
+                            <input type="text" id="editPostTags" name="tags">
+                        </div>
+                        <div class="form-group">
+                            <label for="editReadTime">Read Time (minutes)</label>
+                            <input type="number" id="editReadTime" name="readTime" min="1">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPostImage">Change Image</label>
+                        <input type="file" id="editPostImage" name="image" accept="image/*">
+                        <div id="editImagePreview" class="image-preview"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editPostPublished" name="published">
+                            <span>Published</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Post
+                        </button>
+                        <button type="button" onclick="closeEditModal()" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

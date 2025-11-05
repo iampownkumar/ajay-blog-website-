@@ -1,0 +1,29 @@
+{
+  "name": "ajay-blog-website",
+  "version": "1.0.0",
+  "description": "A modern, responsive blog website built with pure HTML, CSS, and JavaScript",
+  "main": "index.html",
+  "scripts": {
+    "start": "open index.html",
+    "dev": "python -m http.server 8000 || python3 -m http.server 8000"
+  },
+  "keywords": [
+    "blog",
+    "website",
+    "html",
+    "css",
+    "javascript",
+    "responsive",
+    "modern"
+  ],
+  "author": "Ajay",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ajay-blog-website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/ajay-blog-website/issues"
+  },
+  "homepage": "https://github.com/yourusername/ajay-blog-website#readme"
+}

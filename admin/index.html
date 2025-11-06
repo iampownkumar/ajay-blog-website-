@@ -36,17 +36,25 @@
 
     <!-- Admin Dashboard -->
     <div id="dashboardContainer" class="dashboard-container" style="display: none;">
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i> Menu
+        </button>
+        
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2><i class="fas fa-blog"></i> Blog Admin</h2>
+                <h2><i class="fas fa-blog"></i> <span>Blog Admin</span></h2>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="#" data-section="dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="#" data-section="posts" class="nav-link"><i class="fas fa-newspaper"></i> Blog Posts</a></li>
-                    <li><a href="#" data-section="new-post" class="nav-link"><i class="fas fa-plus-circle"></i> New Post</a></li>
-                    <li><a href="#" data-section="categories" class="nav-link"><i class="fas fa-tags"></i> Categories</a></li>
+                    <li><a href="#" data-section="dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+                    <li><a href="#" data-section="posts" class="nav-link"><i class="fas fa-newspaper"></i> <span>Blog Posts</span></a></li>
+                    <li><a href="#" data-section="new-post" class="nav-link"><i class="fas fa-plus-circle"></i> <span>New Post</span></a></li>
+                    <li><a href="#" data-section="categories" class="nav-link"><i class="fas fa-tags"></i> <span>Categories</span></a></li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -116,6 +124,17 @@
                     <div id="recentPostsList" class="posts-list">
                         <!-- Recent posts will be loaded here -->
                     </div>
+                    
+                    <!-- Dashboard Pagination -->
+                    <div class="dashboard-pagination">
+                        <button id="dashboardPrevPage" class="btn btn-secondary" onclick="loadDashboardPosts(dashboardCurrentPage - 1)">
+                            ← Previous
+                        </button>
+                        <span id="dashboardPageInfo">Page 1 of 1</span>
+                        <button id="dashboardNextPage" class="btn btn-secondary" onclick="loadDashboardPosts(dashboardCurrentPage + 1)">
+                            Next →
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -134,6 +153,12 @@
                         </select>
                     </div>
                 </div>
+                
+                <!-- Posts Statistics -->
+                <div id="postsStatsContainer">
+                    <!-- Statistics will be loaded here -->
+                </div>
+                
                 <div class="posts-table-container">
                     <table class="posts-table">
                         <thead>
@@ -201,10 +226,19 @@
                         </div>
                         
                         <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="postPublished" name="published" checked>
-                                <span>Publish immediately</span>
-                            </label>
+                            <label>Post Status *</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="published" value="true" checked>
+                                    <span class="radio-indicator published">📢 Publish Immediately</span>
+                                    <small>Visible to everyone on the blog right away</small>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="published" value="false">
+                                    <span class="radio-indicator draft">📝 Save as Draft</span>
+                                    <small>Hidden from visitors, edit and publish later</small>
+                                </label>
+                            </div>
                         </div>
                         
                         <div class="form-actions">
@@ -280,10 +314,19 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="editPostPublished" name="published">
-                            <span>Published</span>
-                        </label>
+                        <label>Post Status *</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="published" value="true" checked>
+                                <span class="radio-indicator published">📢 Published</span>
+                                <small>Visible to everyone on the blog</small>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="published" value="false">
+                                <span class="radio-indicator draft">📝 Draft</span>
+                                <small>Hidden from visitors, saved for later</small>
+                            </label>
+                        </div>
                     </div>
                     
                     <div class="form-actions">

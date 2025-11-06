@@ -3,18 +3,28 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('.'));
+
+// Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ajay-blog', {
@@ -26,78 +36,61 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ajay-blog
     console.error('MongoDB connection error:', err);
 });
 
-// File Upload Configuration
+// Blog Schema
+const blogSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    excerpt: { type: String, required: true },
+    content: { type: String, required: true },
+    category: { type: String, required: true },
+    tags: [String],
+    date: { type: Date, default: Date.now },
+    published: { type: Boolean, default: true },
+    image: String,
+    readTime: Number
+});
+
+const Blog = mongoose.model('Blog', blogSchema);
+
+// Category Schema
+const categorySchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true }
+});
+
+const Category = mongoose.model('Category', categorySchema);
+
+// Admin Schema
+const adminSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true }
+});
+
+const Admin = mongoose.model('Admin', adminSchema);
+
+// Image Upload Configuration
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: function (req, file, cb) {
         cb(null, 'uploads/');
     },
-    filename: (req, file, cb) => {
+    filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        
-        if (mimetype && extname) {
-            return cb(null, true);
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
         } else {
             cb(new Error('Only image files are allowed!'));
         }
     }
 });
 
-// Schemas
-const blogSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    excerpt: { type: String, required: true },
-    content: { type: String, required: true },
-    category: { type: String, required: true },
-    author: { type: String, default: 'Ajay' },
-    date: { type: Date, default: Date.now },
-    image: { type: String },
-    published: { type: Boolean, default: true },
-    tags: [{ type: String }],
-    readTime: { type: Number, default: 5 }
-});
-
-const adminSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Blog = mongoose.model('Blog', blogSchema);
-const Admin = mongoose.model('Admin', adminSchema);
-
-// Create default admin if not exists
-const createDefaultAdmin = async () => {
-    try {
-        const existingAdmin = await Admin.findOne({ username: 'admin' });
-        if (!existingAdmin) {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
-            const admin = new Admin({
-                username: 'admin',
-                password: hashedPassword,
-                email: 'admin@ajayblog.com'
-            });
-            await admin.save();
-            console.log('Default admin created: username=admin, password=admin123');
-        }
-    } catch (error) {
-        console.error('Error creating default admin:', error);
-    }
-};
-
-createDefaultAdmin();
-
-// Authentication Middleware
+// Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -117,48 +110,42 @@ const authenticateToken = (req, res, next) => {
 
 // Routes
 
-// Auth Routes
-app.post('/api/auth/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        
-        const admin = await Admin.findOne({ username });
-        if (!admin) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        const isMatch = await bcrypt.compare(password, admin.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        const token = jwt.sign(
-            { id: admin._id, username: admin.username },
-            JWT_SECRET,
-            { expiresIn: '24h' }
-        );
-
-        res.json({
-            token,
-            admin: {
-                id: admin._id,
-                username: admin.username,
-                email: admin.email
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
+// Serve main website
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Blog CRUD Routes
+// Serve post page
+app.get('/post', (req, res) => {
+    res.sendFile(path.join(__dirname, 'post.html'));
+});
+
+// Serve admin panel
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+});
+
+// API Routes
+
+// Get all blogs with pagination and filtering
 app.get('/api/blogs', async (req, res) => {
     try {
-        const { page = 1, limit = 10, category, published } = req.query;
+        const { page = 1, limit = 10, category, published, search } = req.query;
         const query = {};
         
         if (category) query.category = category;
         if (published !== undefined) query.published = published === 'true';
+        
+        // Add search functionality
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { content: { $regex: search, $options: 'i' } },
+                { excerpt: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } },
+                { tags: { $regex: search, $options: 'i' } }
+            ];
+        }
 
         const blogs = await Blog.find(query)
             .sort({ date: -1 })
@@ -170,60 +157,85 @@ app.get('/api/blogs', async (req, res) => {
         res.json({
             blogs,
             totalPages: Math.ceil(total / limit),
-            currentPage: page,
+            currentPage: parseInt(page),
             total
         });
     } catch (error) {
+        console.error('Error fetching blogs:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 
+// Get single blog
 app.get('/api/blogs/:id', async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
         if (!blog) {
-            return res.status(404).json({ message: 'Blog post not found' });
+            return res.status(404).json({ message: 'Blog not found' });
         }
         res.json(blog);
     } catch (error) {
+        console.error('Error fetching blog:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 
+// Create new blog
 app.post('/api/blogs', authenticateToken, upload.single('image'), async (req, res) => {
     try {
-        const { title, excerpt, content, category, tags, readTime } = req.body;
+        const { title, excerpt, content, category, tags, published, readTime } = req.body;
         
-        const blog = new Blog({
+        const blogData = {
             title,
             excerpt,
             content,
             category,
-            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-            readTime: readTime || 5,
-            image: req.file ? `/uploads/${req.file.filename}` : null
-        });
+            published: published === 'true',
+            readTime: readTime || Math.ceil(content.length / 1000) // Estimate read time
+        };
 
+        if (tags) {
+            blogData.tags = tags.split(',').map(tag => tag.trim());
+        }
+
+        if (req.file) {
+            blogData.image = `/uploads/${req.file.filename}`;
+        }
+
+        const blog = new Blog(blogData);
         await blog.save();
+
+        // Update categories
+        await Category.findOneAndUpdate(
+            { name: category },
+            { name: category },
+            { upsert: true }
+        );
+
         res.status(201).json(blog);
     } catch (error) {
+        console.error('Error creating blog:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 
+// Update blog
 app.put('/api/blogs/:id', authenticateToken, upload.single('image'), async (req, res) => {
     try {
-        const { title, excerpt, content, category, tags, readTime, published } = req.body;
+        const { title, excerpt, content, category, tags, published, readTime } = req.body;
         
         const updateData = {
             title,
             excerpt,
             content,
             category,
-            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-            readTime: readTime || 5,
-            published: published !== undefined ? published === 'true' : true
+            published: published === 'true',
+            readTime: readTime || Math.ceil(content.length / 1000)
         };
+
+        if (tags) {
+            updateData.tags = tags.split(',').map(tag => tag.trim());
+        }
 
         if (req.file) {
             updateData.image = `/uploads/${req.file.filename}`;
@@ -232,27 +244,37 @@ app.put('/api/blogs/:id', authenticateToken, upload.single('image'), async (req,
         const blog = await Blog.findByIdAndUpdate(
             req.params.id,
             updateData,
-            { new: true, runValidators: true }
+            { new: true }
         );
 
         if (!blog) {
-            return res.status(404).json({ message: 'Blog post not found' });
+            return res.status(404).json({ message: 'Blog not found' });
         }
+
+        // Update categories
+        await Category.findOneAndUpdate(
+            { name: category },
+            { name: category },
+            { upsert: true }
+        );
 
         res.json(blog);
     } catch (error) {
+        console.error('Error updating blog:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 
+// Delete blog
 app.delete('/api/blogs/:id', authenticateToken, async (req, res) => {
     try {
         const blog = await Blog.findByIdAndDelete(req.params.id);
         if (!blog) {
-            return res.status(404).json({ message: 'Blog post not found' });
+            return res.status(404).json({ message: 'Blog not found' });
         }
-        res.json({ message: 'Blog post deleted successfully' });
+        res.json({ message: 'Blog deleted successfully' });
     } catch (error) {
+        console.error('Error deleting blog:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
@@ -263,35 +285,65 @@ app.get('/api/categories', async (req, res) => {
         const categories = await Blog.distinct('category');
         res.json(categories);
     } catch (error) {
+        console.error('Error fetching categories:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
 
-// Serve static files (for admin panel)
-app.use('/admin', express.static(path.join(__dirname, 'admin')));
-
-// Serve main website
-app.use(express.static(path.join(__dirname)));
-
-// Catch all handler - serve index.html for any non-API routes
-app.get('*', (req, res) => {
-    if (req.path.startsWith('/api') || req.path.startsWith('/admin')) {
-        return res.status(404).json({ message: 'Not found' });
+// Admin Authentication
+app.post('/api/admin/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        // For demo purposes, use default admin
+        if (username === 'admin' && password === 'admin123') {
+            const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' });
+            res.json({ token });
+        } else {
+            // Check if admin exists in database
+            const admin = await Admin.findOne({ username });
+            if (!admin || !await bcrypt.compare(password, admin.password)) {
+                return res.status(401).json({ message: 'Invalid credentials' });
+            }
+            
+            const token = jwt.sign({ username: admin.username }, JWT_SECRET, { expiresIn: '24h' });
+            res.json({ token });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
+// Create admin (for setup)
+app.post('/api/admin/create', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        // Check if admin already exists
+        const existingAdmin = await Admin.findOne({ username });
+        if (existingAdmin) {
+            return res.status(400).json({ message: 'Admin already exists' });
+        }
+        
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        const admin = new Admin({
+            username,
+            password: hashedPassword
+        });
+        
+        await admin.save();
+        res.status(201).json({ message: 'Admin created successfully' });
+    } catch (error) {
+        console.error('Error creating admin:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
 });
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Admin panel: http://localhost:${PORT}/admin`);
-    console.log(`API: http://localhost:${PORT}/api`);
 });
-
-module.exports = app;

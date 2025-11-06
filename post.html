@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Read our latest blog post">
+    <title id="post-title">Blog Post - Ajay's Blog</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Additional styles for post page navigation */
+        .nav-brand h1 a {
+            color: #2c3e50;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-brand h1 a:hover {
+            color: #3498db;
+        }
+        
+        /* Hamburger menu styles */
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+        
+        /* Ensure post content doesn't overlap with fixed header */
+        .post-container {
+            margin-top: 70px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1><a href="index.html" style="color: #2c3e50; text-decoration: none;">Ajay's Blog</a></h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#blog">Blog</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Blog Post Content -->
+    <main class="post-container">
+        <article class="blog-post">
+            <!-- Post Header -->
+            <header class="post-header">
+                <div class="post-meta">
+                    <span class="post-category" id="post-category">Technology</span>
+                    <span class="post-date" id="post-date">November 6, 2025</span>
+                    <span class="read-time" id="read-time">5 min read</span>
+                </div>
+                <h1 class="post-title" id="post-title-main">Loading...</h1>
+                <div class="post-author">
+                    <div class="author-avatar">
+                        <img src="https://picsum.photos/seed/author/50/50.jpg" alt="Author" id="author-image">
+                    </div>
+                    <div class="author-info">
+                        <div class="author-name" id="author-name">Ajay Kumar</div>
+                        <div class="author-title">Web Developer & Designer</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Featured Image -->
+            <div class="post-image">
+                <img src="https://picsum.photos/seed/blogpost/1200/600.jpg" alt="Post featured image" id="post-image">
+            </div>
+
+            <!-- Post Content -->
+            <div class="post-content" id="post-content">
+                <div class="loading-content">
+                    <div class="skeleton-loader"></div>
+                    <div class="skeleton-loader"></div>
+                    <div class="skeleton-loader"></div>
+                </div>
+            </div>
+
+            <!-- Post Footer -->
+            <footer class="post-footer">
+                <div class="post-tags" id="post-tags">
+                    <span class="tag">Web Development</span>
+                    <span class="tag">JavaScript</span>
+                    <span class="tag">Design</span>
+                </div>
+                
+                <div class="post-actions">
+                    <div class="share-buttons">
+                        <button class="share-btn" onclick="shareOnTwitter()">
+                            <i class="fab fa-twitter"></i>
+                        </button>
+                        <button class="share-btn" onclick="shareOnLinkedIn()">
+                            <i class="fab fa-linkedin"></i>
+                        </button>
+                        <button class="share-btn" onclick="shareOnFacebook()">
+                            <i class="fab fa-facebook"></i>
+                        </button>
+                        <button class="share-btn" onclick="copyLink()">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="post-reactions">
+                        <button class="reaction-btn" onclick="likePost()">
+                            <i class="far fa-heart"></i>
+                            <span id="like-count">42</span>
+                        </button>
+                    </div>
+                </div>
+            </footer>
+        </article>
+
+        <!-- Author Bio -->
+        <section class="author-bio">
+            <div class="author-bio-content">
+                <div class="author-avatar-large">
+                    <img src="https://picsum.photos/seed/author/100/100.jpg" alt="Author">
+                </div>
+                <div class="author-bio-text">
+                    <h3>About the Author</h3>
+                    <p id="author-bio">Passionate web developer and designer with a love for creating beautiful, functional websites. I enjoy sharing my knowledge and experiences through this blog.</p>
+                    <div class="author-social">
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="related-posts">
+            <h2>Related Posts</h2>
+            <div class="related-posts-grid" id="related-posts">
+                <!-- Related posts will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Comments Section -->
+        <section class="comments-section">
+            <h2>Comments</h2>
+            <div class="comment-form">
+                <h3>Leave a Comment</h3>
+                <form id="comment-form">
+                    <div class="form-group">
+                        <input type="text" id="comment-name" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="comment-email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="comment-content" placeholder="Your Comment" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Post Comment</button>
+                </form>
+            </div>
+            
+            <div class="comments-list" id="comments-list">
+                <!-- Comments will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>Ajay's Blog</h3>
+                    <p>Sharing knowledge, one post at a time.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="index.html#about">About</a></li>
+                            <li><a href="index.html#blog">Blog</a></li>
+                            <li><a href="index.html#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>Categories</h4>
+                        <ul>
+                            <li><a href="#">Web Development</a></li>
+                            <li><a href="#">Design</a></li>
+                            <li><a href="#">JavaScript</a></li>
+                            <li><a href="#">CSS</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Ajay's Blog. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Blog post specific functionality
+        let currentPost = null;
+        let postId = null;
+
+        // Get post ID from URL
+        function getPostIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        hamburger?.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Load blog post
+        async function loadBlogPost() {
+            postId = getPostIdFromUrl();
+            
+            console.log('Loading post with ID:', postId);
+            
+            if (!postId) {
+                showError('No post ID specified');
+                return;
+            }
+
+            try {
+                // Try to convert to ObjectId if it looks like one
+                let url = `/api/blogs/${postId}`;
+                
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const post = await response.json();
+                console.log('Post data:', post);
+                
+                if (post && !post.message) {
+                    currentPost = post;
+                    renderPost(post);
+                    loadRelatedPosts(post.category);
+                    loadComments(postId);
+                } else {
+                    showError(post.message || 'Post not found');
+                }
+            } catch (error) {
+                console.error('Error loading post:', error);
+                showError(`Failed to load post: ${error.message}`);
+            }
+        }
+
+        // Render post content
+        function renderPost(post) {
+            document.title = `${post.title} - Ajay's Blog`;
+            document.getElementById('post-title-main').textContent = post.title;
+            document.getElementById('post-category').textContent = post.category || 'Technology';
+            document.getElementById('post-date').textContent = formatDate(post.date || post.created_at);
+            document.getElementById('read-time').textContent = `${post.read_time || 5} min read`;
+            document.getElementById('post-content').innerHTML = formatContent(post.content);
+            
+            // Fix image path - database already includes /uploads/
+            if (post.image) {
+                if (post.image.startsWith('/uploads/')) {
+                    document.getElementById('post-image').src = post.image + '?t=' + Date.now();
+                } else {
+                    document.getElementById('post-image').src = `/uploads/${post.image}?t=` + Date.now();
+                }
+            }
+            
+            if (post.tags) {
+                renderTags(post.tags);
+            }
+        }
+
+        // Format blog post content with proper styling
+        function formatContent(content) {
+            return content
+                .replace(/\r\n\r\n/g, '</p><p>')
+                .replace(/\r\n/g, '<br>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/^/, '<p>')
+                .replace(/$/, '</p>')
+                .replace(/### (.*)/g, '<h3>$1</h3>')
+                .replace(/## (.*)/g, '<h2>$1</h2>')
+                .replace(/# (.*)/g, '<h1>$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>');
+        }
+
+        // Render tags
+        function renderTags(tags) {
+            const tagsContainer = document.getElementById('post-tags');
+            
+            if (!tags || tags.length === 0) {
+                tagsContainer.innerHTML = '';
+                return;
+            }
+            
+            // Handle both string and array formats
+            let tagsArray = [];
+            if (typeof tags === 'string') {
+                tagsArray = tags.split(',').map(tag => tag.trim());
+            } else if (Array.isArray(tags)) {
+                tagsArray = tags;
+            }
+            
+            tagsContainer.innerHTML = tagsArray.map(tag => 
+                `<span class="tag">${tag}</span>`
+            ).join('');
+        }
+
+        // Load related posts
+        async function loadRelatedPosts(category) {
+            try {
+                const response = await fetch(`/api/blogs?category=${category}&limit=3`);
+                const data = await response.json();
+                
+                // Handle both direct array and wrapped response formats
+                let posts = [];
+                if (data.blogs && Array.isArray(data.blogs)) {
+                    posts = data.blogs;
+                } else if (Array.isArray(data)) {
+                    posts = data;
+                }
+                
+                if (posts && posts.length > 0) {
+                    renderRelatedPosts(posts.filter(p => p._id !== postId));
+                }
+            } catch (error) {
+                console.error('Error loading related posts:', error);
+            }
+        }
+
+        // Render related posts
+        function renderRelatedPosts(posts) {
+            const container = document.getElementById('related-posts');
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<p>No related posts found.</p>';
+                return;
+            }
+            
+            container.innerHTML = posts.map(post => `
+                <div class="related-post-card">
+                    <img src="${post.image ? (post.image.startsWith('/uploads/') ? post.image : `/uploads/${post.image}`) : 'https://picsum.photos/seed/post/300/200.jpg'}" alt="${post.title}">
+                    <div class="related-post-content">
+                        <h3><a href="post.html?id=${post._id}">${post.title}</a></h3>
+                        <p>${post.excerpt || post.content.substring(0, 100)}...</p>
+                        <span class="post-date">${formatDate(post.date || post.created_at)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load comments
+        async function loadComments(postId) {
+            try {
+                const response = await fetch(`/api/comments/${postId}`);
+                const comments = await response.json();
+                
+                if (comments) {
+                    renderComments(comments);
+                }
+            } catch (error) {
+                console.error('Error loading comments:', error);
+            }
+        }
+
+        // Render comments
+        function renderComments(comments) {
+            const container = document.getElementById('comments-list');
+            
+            if (comments.length === 0) {
+                container.innerHTML = '<p>No comments yet. Be the first to comment!</p>';
+                return;
+            }
+            
+            container.innerHTML = comments.map(comment => `
+                <div class="comment">
+                    <div class="comment-avatar">
+                        <img src="https://picsum.photos/seed/${comment.name}/40/40.jpg" alt="${comment.name}">
+                    </div>
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <strong>${comment.name}</strong>
+                            <span class="comment-date">${formatDate(comment.created_at)}</span>
+                        </div>
+                        <p>${comment.content}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Handle comment form submission
+        document.getElementById('comment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('comment-name').value;
+            const email = document.getElementById('comment-email').value;
+            const content = document.getElementById('comment-content').value;
+            
+            try {
+                const response = await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        name,
+                        email,
+                        content
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Comment posted successfully!', 'success');
+                    document.getElementById('comment-form').reset();
+                    loadComments(postId);
+                } else {
+                    showNotification('Failed to post comment', 'error');
+                }
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                showNotification('Failed to post comment', 'error');
+            }
+        });
+
+        // Share functions
+        function shareOnTwitter() {
+            const url = window.location.href;
+            const text = currentPost?.title || 'Check out this blog post';
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function shareOnLinkedIn() {
+            const url = window.location.href;
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function shareOnFacebook() {
+            const url = window.location.href;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href);
+            showNotification('Link copied to clipboard!', 'success');
+        }
+
+        // Like post
+        async function likePost() {
+            try {
+                const response = await fetch(`/api/blogs/${postId}/like`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const likeBtn = document.querySelector('.reaction-btn');
+                    const likeCount = document.getElementById('like-count');
+                    
+                    likeBtn.querySelector('i').classList.toggle('fas');
+                    likeBtn.querySelector('i').classList.toggle('far');
+                    likeCount.textContent = data.likes;
+                }
+            } catch (error) {
+                console.error('Error liking post:', error);
+            }
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple notification - you can enhance this
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                border-radius: 8px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            document.getElementById('post-content').innerHTML = `
+                <div class="error-message">
+                    <h2>Post Not Found</h2>
+                    <p>${message}</p>
+                    <a href="index.html" class="back-link">← Back to Home</a>
+                </div>
+            `;
+        }
+
+        // Scroll to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/hide back to top button
+        window.addEventListener('scroll', () => {
+            const backToTopBtn = document.querySelector('.back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBlogPost();
+        });
+    </script>
+</body>
+</html>

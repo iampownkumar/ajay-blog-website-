@@ -18,6 +18,15 @@ const pageTitle = document.getElementById('pageTitle');
 document.addEventListener('DOMContentLoaded', () => {
     if (authToken) {
         showDashboard();
+        
+        // Restore sidebar state from localStorage
+        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (sidebarCollapsed) {
+            const sidebar = document.querySelector('.sidebar');
+            const content = document.querySelector('.content');
+            sidebar.classList.add('collapsed');
+            content.classList.add('expanded');
+        }
     } else {
         showLogin();
     }
@@ -156,20 +165,66 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 // Dashboard Functions
+let dashboardCurrentPage = 1;
+let dashboardTotalPages = 1;
+
 async function loadDashboardData() {
     try {
         const [statsResponse, postsResponse] = await Promise.all([
-            apiRequest('/blogs?limit=5'),
-            apiRequest('/blogs')
+            apiRequest('/blogs?limit=10'),  // Recent posts for dashboard
+            apiRequest('/blogs')  // All posts for statistics
         ]);
         
         if (statsResponse && postsResponse) {
             updateDashboardStats(postsResponse);
             updateRecentPosts(statsResponse.blogs);
+            updateDashboardPagination(1, Math.ceil(postsResponse.total / 10));
         }
     } catch (error) {
         console.error('Error loading dashboard data:', error);
     }
+}
+
+// Load dashboard posts with pagination
+async function loadDashboardPosts(page = 1) {
+    try {
+        console.log(`Loading dashboard posts for page: ${page}`);
+        dashboardCurrentPage = page;
+        
+        // Get paginated posts (API already handles pagination correctly)
+        const response = await apiRequest(`/blogs?page=${page}&limit=10`);
+        
+        console.log('Dashboard posts response:', response);
+        
+        if (response) {
+            updateRecentPosts(response.blogs);
+            updateDashboardPagination(response.currentPage, response.totalPages);
+        }
+    } catch (error) {
+        console.error('Error loading dashboard posts:', error);
+    }
+}
+
+// Update dashboard pagination
+function updateDashboardPagination(currentPage, totalPages) {
+    // Convert to numbers to ensure proper comparison
+    currentPage = parseInt(currentPage);
+    totalPages = parseInt(totalPages);
+    
+    dashboardCurrentPage = currentPage;
+    dashboardTotalPages = totalPages;
+    
+    console.log(`Dashboard pagination: Page ${currentPage} of ${totalPages}`);
+    
+    const pageInfo = document.getElementById('dashboardPageInfo');
+    const prevBtn = document.getElementById('dashboardPrevPage');
+    const nextBtn = document.getElementById('dashboardNextPage');
+    
+    if (pageInfo) pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+    
+    console.log(`Button states - Previous: ${currentPage <= 1 ? 'disabled' : 'enabled'}, Next: ${currentPage >= totalPages ? 'disabled' : 'enabled'}`);
 }
 
 function updateDashboardStats(data) {
@@ -189,6 +244,39 @@ function updateDashboardStats(data) {
     });
 }
 
+// Update statistics for the Posts tab
+function updatePostsStats(data) {
+    const totalPosts = data.total || 0;
+    const publishedPosts = data.blogs.filter(post => post.published).length;
+    const draftPosts = totalPosts - publishedPosts;
+    const categories = [...new Set(data.blogs.map(post => post.category))].length;
+    
+    // Update posts tab statistics
+    const postsStatsContainer = document.getElementById('postsStatsContainer');
+    if (postsStatsContainer) {
+        postsStatsContainer.innerHTML = `
+            <div class="posts-stats">
+                <div class="stat-card">
+                    <div class="stat-number">${totalPosts}</div>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+                <div class="stat-card published">
+                    <div class="stat-number">${publishedPosts}</div>
+                    <div class="stat-label">Published</div>
+                </div>
+                <div class="stat-card draft">
+                    <div class="stat-number">${draftPosts}</div>
+                    <div class="stat-label">Draft</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${categories}</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            </div>
+        `;
+    }
+}
+
 function updateRecentPosts(posts) {
     const container = document.getElementById('recentPostsList');
     
@@ -199,9 +287,15 @@ function updateRecentPosts(posts) {
     
     container.innerHTML = posts.map(post => `
         <div class="post-item">
-            <div>
-                <h4>${post.title}</h4>
-                <p>${post.category} • ${new Date(post.date).toLocaleDateString()}</p>
+            <div class="post-item-content">
+                ${post.image ? `<div class="post-thumbnail"><img src="${post.image}" alt="${post.title}"></div>` : '<div class="post-thumbnail no-image"><i class="fas fa-image"></i></div>'}
+                <div class="post-info">
+                    <h4>${post.title}</h4>
+                    <p>${post.category} • ${new Date(post.date).toLocaleDateString()}</p>
+                    <span class="status-badge ${post.published ? 'status-published' : 'status-draft'}">
+                        ${post.published ? '📢 Published' : '📝 Draft'}
+                    </span>
+                </div>
             </div>
             <div class="post-actions">
                 <button class="btn btn-secondary" onclick="editPost('${post._id}')">
@@ -218,19 +312,24 @@ function updateRecentPosts(posts) {
 // Blog Posts Functions
 async function loadPosts() {
     try {
+        // Load posts for the table
         const queryParams = new URLSearchParams({
             page: currentPage,
-            limit: 10
+            limit: 10  // Set to 10 posts per page
         });
         
         if (currentFilter.category) queryParams.append('category', currentFilter.category);
         if (currentFilter.status !== '') queryParams.append('published', currentFilter.status);
         
-        const response = await apiRequest(`/blogs?${queryParams}`);
+        const [postsResponse, statsResponse] = await Promise.all([
+            apiRequest(`/blogs?${queryParams}`),
+            apiRequest('/blogs')  // Get all posts for statistics
+        ]);
         
-        if (response) {
-            updatePostsTable(response.blogs);
-            updatePagination(response.currentPage, response.totalPages);
+        if (postsResponse && statsResponse) {
+            updatePostsTable(postsResponse.blogs);
+            updatePagination(postsResponse.currentPage, postsResponse.totalPages);
+            updatePostsStats(statsResponse);  // Add statistics to posts tab
             loadCategoriesForFilter();
         }
     } catch (error) {
@@ -242,18 +341,25 @@ function updatePostsTable(posts) {
     const tbody = document.getElementById('postsTableBody');
     
     if (posts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5">No posts found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6">No posts found.</td></tr>';
         return;
     }
     
     tbody.innerHTML = posts.map(post => `
         <tr>
-            <td>${post.title}</td>
+            <td>
+                <div class="table-post-item">
+                    ${post.image ? `<div class="table-thumbnail"><img src="${post.image}" alt="${post.title}"></div>` : '<div class="table-thumbnail no-image"><i class="fas fa-image"></i></div>'}
+                    <div class="table-post-info">
+                        <strong>${post.title}</strong>
+                    </div>
+                </div>
+            </td>
             <td>${post.category}</td>
             <td>${new Date(post.date).toLocaleDateString()}</td>
             <td>
                 <span class="status-badge ${post.published ? 'status-published' : 'status-draft'}">
-                    ${post.published ? 'Published' : 'Draft'}
+                    ${post.published ? '📢 Published' : '📝 Draft'}
                 </span>
             </td>
             <td>
@@ -386,7 +492,12 @@ async function editPost(postId) {
             document.getElementById('editPostContent').value = response.content;
             document.getElementById('editPostTags').value = response.tags.join(', ');
             document.getElementById('editReadTime').value = response.readTime;
-            document.getElementById('editPostPublished').checked = response.published;
+            
+            // Set the radio button for published status
+            const publishedRadio = document.querySelector(`input[name="published"][value="${response.published ? 'true' : 'false'}"]`);
+            if (publishedRadio) {
+                publishedRadio.checked = true;
+            }
             
             // Show current image if exists
             const editPreview = document.getElementById('editImagePreview');
@@ -539,3 +650,75 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// Sidebar Toggle Function
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const content = document.querySelector('.content');
+    
+    sidebar.classList.toggle('collapsed');
+    content.classList.toggle('expanded');
+    
+    // Save preference to localStorage
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    localStorage.setItem('sidebarCollapsed', isCollapsed);
+}
+
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('active');
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+    const sidebar = document.querySelector('.sidebar');
+    const toggle = document.querySelector('.mobile-toggle');
+    
+    if (window.innerWidth <= 768 && 
+        !sidebar.contains(event.target) && 
+        !toggle.contains(event.target) && 
+        sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+    }
+});
+
+// Close mobile menu when navigating to a new section
+function showSection(sectionName) {
+    // Close mobile menu if open
+    const sidebar = document.querySelector('.sidebar');
+    if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+    }
+    
+    // Hide all sections
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Show target section
+    const targetSection = document.getElementById(sectionName);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
+    
+    // Update nav
+    document.querySelectorAll('.nav-link').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+    
+    // Load data based on section
+    switch (sectionName) {
+        case 'dashboard':
+            loadDashboardData();
+            break;
+        case 'posts':
+            loadPosts();
+            break;
+        case 'categories':
+            loadCategories();
+            break;
+    }
+}

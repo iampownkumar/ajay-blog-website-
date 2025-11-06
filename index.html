@@ -61,99 +61,25 @@
     </section>
 
     <!-- Blog Section -->
-    <section id="blog" class="blog">
+    <section id="blog" class="blog-posts">
         <div class="container">
             <h2>Latest Blog Posts</h2>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search blog posts..." />
+                    <button id="searchBtn" onclick="performSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <button id="clearSearchBtn" class="clear-search-btn" onclick="clearSearch()" style="display: none;">
+                    <i class="fas fa-times"></i> Clear Search
+                </button>
+            </div>
+            
             <div class="blog-grid">
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <div class="placeholder-image"></div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span class="date">Nov 5, 2025</span>
-                            <span class="category">Web Development</span>
-                        </div>
-                        <h3>Getting Started with Modern Web Development</h3>
-                        <p>Learn the fundamentals of modern web development including HTML5, CSS3, and JavaScript ES6+.</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <div class="placeholder-image"></div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span class="date">Nov 3, 2025</span>
-                            <span class="category">Design</span>
-                        </div>
-                        <h3>Principles of Good UI Design</h3>
-                        <p>Explore the key principles that make user interfaces intuitive, accessible, and delightful to use.</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <div class="placeholder-image"></div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span class="date">Oct 28, 2025</span>
-                            <span class="category">JavaScript</span>
-                        </div>
-                        <h3>JavaScript Best Practices in 2025</h3>
-                        <p>Discover the latest JavaScript best practices and patterns for writing clean, maintainable code.</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <div class="placeholder-image"></div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span class="date">Oct 25, 2025</span>
-                            <span class="category">CSS</span>
-                        </div>
-                        <h3>Advanced CSS Techniques</h3>
-                        <p>Master advanced CSS techniques including Grid, Flexbox, and modern layout strategies.</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <div class="placeholder-image"></div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span class="date">Oct 20, 2025</span>
-                            <span class="category">Productivity</span>
-                        </div>
-                        <h3>Boosting Developer Productivity</h3>
-                        <p>Tips and tools to help you become more productive and efficient in your development work.</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
-
-                <article class="blog-card">
-                    <div class="blog-image">
-                        <div class="placeholder-image"></div>
-                    </div>
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span class="date">Oct 15, 2025</span>
-                            <span class="category">React</span>
-                        </div>
-                        <h3>React Hooks Deep Dive</h3>
-                        <p>A comprehensive guide to understanding and using React Hooks effectively in your applications.</p>
-                        <a href="#" class="read-more">Read More →</a>
-                    </div>
-                </article>
+                <!-- Blog posts will be loaded here dynamically -->
             </div>
         </div>
     </section>
